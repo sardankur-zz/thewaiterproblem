@@ -133,7 +133,7 @@ function compute() {
             xcom = xcom / dataset.length;
             ycom = ycom / dataset.length;
 
-            s += "Center of Mass + [" + xcom  + ", " + ycom + "] <br />";
+            s += " <br /> Center of Mass : [" + xcom  + ", " + ycom + "] <br />";
 
             d3.select("#info").node().innerHTML = s;
         });

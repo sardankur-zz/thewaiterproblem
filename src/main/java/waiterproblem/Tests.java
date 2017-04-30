@@ -36,10 +36,10 @@ public class Tests {
     public void test() {
         Map<String, Map<String, Float>> map = new HashMap<>();
         int T = 5000;
-        int k = 20;
+        int k = 100;
 
         for(int i = 0; i < T; ++i) {
-            List<Point> points = Point.getRandomPoints(20);
+            List<Point> points = Point.getRandomPoints(100);
             for (String heuristicName : heuristics) {
                 Heuristic heuristic = heuristicFactory.getHeuristic(heuristicName, points);
 
