@@ -13,7 +13,7 @@ import waiterproblem.score.type.VarianceCOM;
 
 import java.util.*;
 
-public class Tests {
+public class RunAllTests {
 
     List<String> heuristics = new ArrayList<>();
     List<String> scores = new ArrayList<>();
@@ -33,29 +33,30 @@ public class Tests {
         scores.add(VarianceCOM.class.getSimpleName());
     }
 
-    public void test() {
+    public void run(int T, int n, int k, List<String> heuristicNames, List<String> scoreNames) {
         Map<String, Map<String, Float>> map = new HashMap<>();
-        int T = 5000;
-        int k = 100;
-
         for(int i = 0; i < T; ++i) {
-            List<Point> points = Point.getRandomPoints(100);
+            List<Point> points = Point.getRandomPoints(n);
             for (String heuristicName : heuristics) {
-                Heuristic heuristic = heuristicFactory.getHeuristic(heuristicName, points);
+                if(heuristicNames.contains(heuristicName)) {
+                    Heuristic heuristic = heuristicFactory.getHeuristic(heuristicName, points);
 
-                if(map.get(heuristicName) == null) {
-                    map.put(heuristicName, new HashMap<>());
-                }
+                    if (map.get(heuristicName) == null) {
+                        map.put(heuristicName, new HashMap<>());
+                    }
 
-                Map<String, Float> heuristicMap = map.get(heuristicName);
-                for (String scorename : scores) {
-                    Score score = scoreFactory.getScore(scorename, points);
-                    Pair<List<Point>, Float> orderAndScore = algorithm.findOrderAndScore(points, k, heuristic, score);
+                    Map<String, Float> heuristicMap = map.get(heuristicName);
+                    for (String scorename : scores) {
+                        if(scoreNames.contains(scorename)) {
+                            Score score = scoreFactory.getScore(scorename, points);
+                            Pair<List<Point>, Float> orderAndScore = algorithm.findOrderAndScore(points, k, heuristic, score);
 
-                    if(heuristicMap.get(scorename) == null) {
-                        heuristicMap.put(scorename, orderAndScore.getSecond());
-                    } else {
-                        heuristicMap.put(scorename, heuristicMap.get(scorename) + orderAndScore.getSecond());
+                            if (heuristicMap.get(scorename) == null) {
+                                heuristicMap.put(scorename, orderAndScore.getSecond());
+                            } else {
+                                heuristicMap.put(scorename, heuristicMap.get(scorename) + orderAndScore.getSecond());
+                            }
+                        }
                     }
                 }
             }
@@ -70,31 +71,28 @@ public class Tests {
         }
     }
 
-    public void test1() {
-        List<Point> points = new ArrayList<>();
-        points.add(new Point(1,1));
-        points.add(new Point(1,2));
-        points.add(new Point(1.5f ,1.5f));
-        points.add(new Point(2,1));
-        points.add(new Point(2.5f,1.5f));
-        points.add(new Point(2,2));
+    public List<String> getHeuristics(String arg) {
+        if(arg.equals("*")) {
+            return heuristics;
+        } else {
+            return Arrays.asList(arg.split(","));
+        }
+    }
 
-        Heuristic heuristic = new HeuristicFactory()
-                .getHeuristic(ClosestDistanceVariableCOM.class.getSimpleName(), points);
-        Score score = new ScoreFactory()
-                .getScore(AreaConvexHullCOM.class.getSimpleName(), points);
-
-        Algorithm algorithm = new Algorithm();
-        Pair<List<Point>, Float> orderAndScore = algorithm.findOrderAndScore(points, 4, heuristic, score);
-        System.out.println(orderAndScore.getSecond());
-        for(Point point : orderAndScore.getFirst()) {
-            System.out.println(point);
+    public List<String> getScores(String arg) {
+        if(arg.equals("*")) {
+            return scores;
+        } else {
+            return Arrays.asList(arg.split(","));
         }
     }
 
     public static void main(String[] args) {
-        Tests tests = new Tests();
+        RunAllTests tests = new RunAllTests();
         tests.setup();
-        tests.test();
+        List<String> heuristicNames = tests.getHeuristics(args[3]);
+        List<String> scoreNames = tests.getScores(args[4]);
+        tests.run(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
+                Integer.parseInt(args[2]), heuristicNames, scoreNames);
     }
 }

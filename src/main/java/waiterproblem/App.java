@@ -41,18 +41,17 @@ public class App {
         }
     };
 
-    public void route() {
+    public void route(int port) {
         port(8000);
         staticFiles.location("/public");
         staticFiles.expireTime(600L);
-
         post("/api", apiCall);
     }
 
     public static void main(String[] args) {
         App app = new App();
-        app.route();
-
+        app.route(Integer.parseInt(args[0]));
+        System.out.println("Server is running at " + args[0]);
     }
 
     public Res process(Req req) {
